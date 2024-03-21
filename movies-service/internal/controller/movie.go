@@ -74,5 +74,3 @@ func (c MovieController) GetMovies(ctx context.Context, req *pb.EmptyMessage) (*
 	return moves, nil
 
 }
-
-//func (c MovieController) mustEmbedUnimplementedMovieServiceServer() {}

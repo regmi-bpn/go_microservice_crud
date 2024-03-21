@@ -7,10 +7,10 @@ import (
 )
 
 type Movie struct {
-	service service.Movie
+	service service.MovieService
 }
 
-func NewMovieController(service service.Movie) Movie {
+func NewMovieController(service service.MovieService) Movie {
 	return Movie{service: service}
 }
 

@@ -6,11 +6,19 @@ import (
 	"github.com/regmi-bpn/movies-api/types"
 )
 
+type MovieService interface {
+	SaveMovie(request types.MovieRequest) (*types.MovieResponse, error)
+	UpdateMovie(id string, request types.MovieRequest) (*types.MovieResponse, error)
+	DeleteMovie(id string) error
+	GetMovie(id string) (*types.MovieResponse, error)
+	GetMovies() ([]types.MovieResponse, error)
+}
+
 type Movie struct {
 	client pb.MovieServiceClient
 }
 
-func NewMovieService(client pb.MovieServiceClient) Movie {
+func NewMovieService(client pb.MovieServiceClient) MovieService {
 	return Movie{
 		client: client,
 	}

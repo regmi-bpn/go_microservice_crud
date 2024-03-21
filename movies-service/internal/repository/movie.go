@@ -5,39 +5,48 @@ import (
 	"gorm.io/gorm"
 )
 
-type Movie struct {
+type MovieRepository interface {
+	Get(id string) (*entity.Movie, error)
+	GetAll() ([]entity.Movie, error)
+	Save(movie *entity.Movie) (*entity.Movie, error)
+	Update(id string, movie *entity.Movie) (*entity.Movie, error)
+	DeleteMovie(id string) error
+}
+
+type movieRepository struct {
 	db *gorm.DB
 }
 
-func NewMovieRepository(db *gorm.DB) Movie {
-	return Movie{
-		db: db,
-	}
-}
-
-func (u Movie) Get(id string) (*entity.Movie, error) {
+func (r *movieRepository) Get(id string) (*entity.Movie, error) {
 	var movie entity.Movie
-	err := u.db.Model(&entity.Movie{}).Where("id = ?", id).First(&movie).Error
+	err := r.db.Model(&entity.Movie{}).Where("id = ?", id).First(&movie).Error
 	return &movie, err
 }
 
-func (u Movie) GetAll() ([]entity.Movie, error) {
+func (r *movieRepository) GetAll() ([]entity.Movie, error) {
 	var movies []entity.Movie
-	err := u.db.Model(&entity.Movie{}).Find(&movies).Error
+	err := r.db.Model(&entity.Movie{}).Find(&movies).Error
 	return movies, err
 }
 
-func (u Movie) Save(movie entity.Movie) (*entity.Movie, error) {
-	err := u.db.Model(&entity.Movie{}).Create(&movie).Error
-	return &movie, err
+func (r *movieRepository) Save(movie *entity.Movie) (*entity.Movie, error) {
+	err := r.db.Model(&entity.Movie{}).Create(&movie).Error
+	return movie, err
 }
 
-func (u Movie) Update(id string, movie entity.Movie) (*entity.Movie, error) {
-	err := u.db.Model(&entity.Movie{}).Where("id = ?", id).Updates(&movie).Error
+func (r *movieRepository) Update(id string, movie *entity.Movie) (*entity.Movie, error) {
+	err := r.db.Model(&entity.Movie{}).Where("id = ?", id).Updates(&movie).Error
 	movie.ID = id
-	return &movie, err
+	return movie, err
 }
 
-func (u Movie) Delete(id string) error {
-	return u.db.Model(&entity.Movie{}).Where("id = ?", id).Delete(&entity.Movie{}).Error
+func (r *movieRepository) DeleteMovie(id string) error {
+	return r.db.Model(&entity.Movie{}).Where("id = ?", id).Delete(&entity.Movie{}).Error
+
+}
+
+func NewMovieRepository(db *gorm.DB) MovieRepository {
+	return &movieRepository{
+		db: db,
+	}
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/regmi-bpn/movies-services/internal/repository"
 	"github.com/regmi-bpn/movies-services/internal/service"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"log"
 	"net"
 	"os"
@@ -28,9 +29,20 @@ func main() {
 		Schema:   os.Getenv("MOVIE_DB_SCHEMA"),
 	})
 
+	conn, err := grpc.Dial(os.Getenv("RATING_GRPC_HOST"), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Fatalf("Error connecting to grpc server: %v", err)
+	}
+	defer func() {
+		if err := conn.Close(); err != nil {
+			panic(err)
+		}
+	}()
+
+	c := pb.NewRatingServiceClient(conn)
 	s := grpc.NewServer()
 	repo := repository.NewMovieRepository(db)
-	serv := service.NewMovieService(repo)
+	serv := service.NewMovieService(repo, c)
 	con := controller.NewMovieController(serv)
 	pb.RegisterMovieServiceServer(s, con)
 

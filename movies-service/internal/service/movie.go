@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"github.com/google/uuid"
 	"github.com/regmi-bpn/movie-common/pb"
 	"github.com/regmi-bpn/movies-services/internal/entity"
@@ -19,6 +20,7 @@ type MovieService interface {
 
 type movieService struct {
 	repository repository.MovieRepository
+	client     pb.RatingServiceClient
 }
 
 func (m movieService) SaveMovie(req *pb.MovieSaveRequest) (*pb.MovieResponse, error) {
@@ -63,10 +65,14 @@ func (m movieService) GetMovie(req *pb.MovieIdRequest) (*pb.MovieResponse, error
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
-
+	rating, err := m.client.GetRating(context.Background(), &pb.RatingRequest{MovieId: mov.ID})
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, err.Error())
+	}
 	return &pb.MovieResponse{
-		Id:   mov.ID,
-		Name: mov.Name,
+		Id:     mov.ID,
+		Name:   mov.Name,
+		Rating: &pb.MovieRating{Like: rating.Like, Dislike: rating.Dislike},
 	}, nil
 }
 
@@ -91,9 +97,10 @@ func (m movieService) GetMovies(req *pb.EmptyMessage) (*pb.MovieResponseList, er
 
 }
 
-func NewMovieService(repository repository.MovieRepository) MovieService {
+func NewMovieService(repository repository.MovieRepository, client pb.RatingServiceClient) MovieService {
 	return &movieService{
 		repository: repository,
+		client:     client,
 	}
 
 }

@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
+	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/regmi-bpn/movie-common/pb"
 	"github.com/regmi-bpn/movies-api/internal/controller"
+	"github.com/regmi-bpn/movies-api/internal/publisher"
 	"github.com/regmi-bpn/movies-api/internal/routes"
 	"github.com/regmi-bpn/movies-api/internal/service"
 	"google.golang.org/grpc"
@@ -23,9 +25,19 @@ func main() {
 			panic(err)
 		}
 	}()
+	config := &kafka.ConfigMap{
+		"bootstrap.servers": os.Getenv("RATING_KAFKA_SERVER"),
+	}
+	topic := os.Getenv("RATING_KAFKA_TOPIC")
+
+	producer, err := kafka.NewProducer(config)
+	if err != nil {
+		panic(err)
+	}
+	pub := publisher.NewPublisher(producer)
 
 	c := pb.NewMovieServiceClient(conn)
-	movieService := service.NewMovieService(c)
+	movieService := service.NewMovieService(c, pub, topic)
 	movieController := controller.NewMovieController(movieService)
 	r := routes.InitRoutes(movieController)
 	if err := r.Run(fmt.Sprintf(":%s", port)); err != nil {

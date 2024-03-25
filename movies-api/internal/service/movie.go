@@ -3,6 +3,8 @@ package service
 import (
 	"context"
 	"github.com/regmi-bpn/movie-common/pb"
+	commonTypes "github.com/regmi-bpn/movie-common/types"
+	"github.com/regmi-bpn/movies-api/internal/publisher"
 	"github.com/regmi-bpn/movies-api/types"
 )
 
@@ -12,15 +14,20 @@ type MovieService interface {
 	DeleteMovie(id string) error
 	GetMovie(id string) (*types.MovieResponse, error)
 	GetMovies() ([]types.MovieResponse, error)
+	AddRating(id string, request types.RatingRequest) error
 }
 
 type Movie struct {
-	client pb.MovieServiceClient
+	client      pb.MovieServiceClient
+	publisher   publisher.Publisher
+	ratingTopic string
 }
 
-func NewMovieService(client pb.MovieServiceClient) MovieService {
+func NewMovieService(client pb.MovieServiceClient, publisher publisher.Publisher, ratingTopic string) MovieService {
 	return Movie{
-		client: client,
+		client:      client,
+		publisher:   publisher,
+		ratingTopic: ratingTopic,
 	}
 }
 
@@ -72,6 +79,10 @@ func (c Movie) GetMovie(id string) (*types.MovieResponse, error) {
 	return &types.MovieResponse{
 		Id:   r.GetId(),
 		Name: r.GetName(),
+		Rating: types.MovieRatingResponse{
+			Like:    r.Rating.Like,
+			Dislike: r.Rating.Dislike,
+		},
 	}, nil
 }
 
@@ -90,4 +101,11 @@ func (c Movie) GetMovies() ([]types.MovieResponse, error) {
 	}
 
 	return moviesResponse, nil
+}
+
+func (c Movie) AddRating(id string, request types.RatingRequest) error {
+	return c.publisher.Publish(commonTypes.RatingConsumeMessage{
+		MovieId: id,
+		Like:    request.Like,
+	}, c.ratingTopic)
 }

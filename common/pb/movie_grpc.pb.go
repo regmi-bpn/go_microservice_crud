@@ -18,7 +18,7 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-// MovieServiceClient is the client API for MovieService repository.
+// MovieServiceClient is the client API for MovieService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MovieServiceClient interface {
@@ -82,7 +82,7 @@ func (c *movieServiceClient) GetMovies(ctx context.Context, in *EmptyMessage, op
 	return out, nil
 }
 
-// MovieServiceServer is the server API for MovieService repository.
+// MovieServiceServer is the server API for MovieService service.
 // All implementations must embed UnimplementedMovieServiceServer
 // for forward compatibility
 type MovieServiceServer interface {
@@ -115,7 +115,7 @@ func (UnimplementedMovieServiceServer) GetMovies(context.Context, *EmptyMessage)
 }
 func (UnimplementedMovieServiceServer) mustEmbedUnimplementedMovieServiceServer() {}
 
-// UnsafeMovieServiceServer may be embedded to opt out of forward compatibility for this repository.
+// UnsafeMovieServiceServer may be embedded to opt out of forward compatibility for this service.
 // Use of this interface is not recommended, as added methods to MovieServiceServer will
 // result in compilation errors.
 type UnsafeMovieServiceServer interface {
@@ -216,7 +216,7 @@ func _MovieService_GetMovies_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
-// MovieService_ServiceDesc is the grpc.ServiceDesc for MovieService repository.
+// MovieService_ServiceDesc is the grpc.ServiceDesc for MovieService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var MovieService_ServiceDesc = grpc.ServiceDesc{

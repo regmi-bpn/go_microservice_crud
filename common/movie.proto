@@ -17,6 +17,7 @@ message EmptyMessage{
 message MovieResponse {
   string id = 1;
   string name = 2;
+  MovieRating rating = 3;
 }
 
 message MovieResponseList {
@@ -34,4 +35,9 @@ message MovieIdRequest {
 message MovieUpdateRequest {
   string id = 1;
   string name = 2;
+}
+
+message MovieRating{
+  int64 like = 1;
+  int64 dislike = 2;
 }

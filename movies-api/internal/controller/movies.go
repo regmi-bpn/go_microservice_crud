@@ -113,3 +113,30 @@ func (c Movie) GetMovies(ctx *gin.Context) {
 	ctx.JSON(200, res)
 
 }
+
+func (c Movie) AddMovieRating(ctx *gin.Context) {
+	id := ctx.Param("id")
+	if id == "" {
+		ctx.JSON(400, gin.H{
+			"error": "id is required!!",
+		})
+		return
+	}
+	var request types.RatingRequest
+	if err := ctx.ShouldBindJSON(&request); err != nil {
+		ctx.JSON(400, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	err := c.service.AddRating(id, request)
+	if err != nil {
+		ctx.JSON(400, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	ctx.Status(200)
+}

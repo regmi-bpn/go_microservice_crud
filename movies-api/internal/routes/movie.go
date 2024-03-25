@@ -14,6 +14,7 @@ func InitRoutes(movie controller.Movie) *gin.Engine {
 		movieGroup.POST("", movie.SaveMovie)
 		movieGroup.PUT("/:id", movie.UpdateMovie)
 		movieGroup.DELETE("/:id", movie.DeleteMovie)
+		movieGroup.POST("/rating/:id", movie.AddMovieRating)
 	}
 	return r
 }

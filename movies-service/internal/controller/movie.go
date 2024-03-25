@@ -58,8 +58,7 @@ func (c MovieController) GetMovie(ctx context.Context, req *pb.MovieIdRequest) (
 
 	}
 
-	response := &pb.MovieResponse{Id: mov.Id, Name: mov.Name}
-	return response, nil
+	return mov, nil
 
 }
 func (c MovieController) GetMovies(ctx context.Context, req *pb.EmptyMessage) (*pb.MovieResponseList, error) {
